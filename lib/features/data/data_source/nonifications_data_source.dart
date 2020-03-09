@@ -56,7 +56,7 @@ class NotificationDataSourceImpl extends NotificationDataSource{
         'your other channel name',
         'your other channel description',
         //icon: 'secondary_icon',
-       // sound: 'azan',
+        sound: 'azan',
         //largeIcon: 'sample_large_icon',
         //largeIconBitmapSource: BitmapSource.Drawable,
         vibrationPattern: vibrationPattern,
@@ -67,7 +67,7 @@ class NotificationDataSourceImpl extends NotificationDataSource{
         //ledOffMs: 500
         );
     var iOSPlatformChannelSpecifics =
-    IOSNotificationDetails(sound: 'slow_spring_board.aiff',presentSound: true);
+    IOSNotificationDetails(sound: 'azan.aiff',presentSound: true);
     var platformChannelSpecifics = NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
     await notificationPlugin.schedule(

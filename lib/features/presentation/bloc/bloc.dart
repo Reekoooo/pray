@@ -125,11 +125,13 @@ class DayTimings extends ChangeNotifier {
   }
 
   void _setAzanAlarms(List<DateTime> timingsAsDates) async {
-    final notifications = timingsAsDates
-        .map((time) => AzanAlarm(
-              azanDateTime: time,
-            ))
-        .toList();
+    final notifications =
+//    timingsAsDates
+//        .map((time) => AzanAlarm(
+//              azanDateTime: time,
+//            ))
+//        .toList()
+      [AzanAlarm(azanDateTime: DateTime.now().add(Duration(seconds: 10)))];
     await notificationsUseCase.setNotifications(notifications: notifications);
   }
 }
