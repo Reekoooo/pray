@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:pray/features/data/data_source/local_data_source.dart';
 import 'package:pray/features/data/data_source/location_data_source.dart';
 import 'package:pray/features/data/data_source/remote_data_source.dart';
@@ -26,7 +27,8 @@ Future<void> init() async{
   sl.registerLazySingleton<LocalDataSource>(()=>LocalDataSourceImpl(preferences: sl()));
   sl.registerLazySingleton<RemoteDataSource>(()=>RemoteDataSourceImpl(client: sl()));
   sl.registerLazySingleton<Geolocator>(()=> Geolocator());
-  sl.registerLazySingleton<LocationDataSource>(()=>LocationDataSourceImpl(geoLocator: sl()));
+  sl.registerLazySingleton<PermissionHandler>(()=>PermissionHandler());
+  sl.registerLazySingleton<LocationDataSource>(()=>LocationDataSourceImpl(geoLocator: sl(),permissionHandler: sl()));
   sl.registerLazySingleton<FlutterLocalNotificationsPlugin>(()=>FlutterLocalNotificationsPlugin());
   sl.registerLazySingleton<NotificationDataSource>(()=>NotificationDataSourceImpl(notificationPlugin: sl()));
 

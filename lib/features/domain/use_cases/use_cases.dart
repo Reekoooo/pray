@@ -5,6 +5,9 @@ import 'package:pray/features/domain/entity/azan_alarm.dart';
 import 'package:pray/features/domain/entity/entity.dart';
 import 'package:pray/features/domain/repository/calender_month_reepository.dart';
 
+
+
+
 class GetCalenderMonthUseCase {
   final CalenderMonthRepository repository;
 
@@ -67,5 +70,9 @@ class SetAzanNotificationsUseCase {
   Future<Either<Failure,bool>> setNotifications({@required List<AzanAlarm> notifications }){
     return repository.setAzanNotifications(notifications: notifications);
   }
+
+}
+
+class CalenderUseCases {
 
 }

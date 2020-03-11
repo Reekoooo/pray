@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:pray/core/exeptions.dart';
 import 'package:pray/features/data/model/location_model.dart';
 import 'package:pray/features/domain/entity/location_entity.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -16,27 +17,44 @@ abstract class LocationDataSource{
 class LocationDataSourceImpl implements LocationDataSource{
 
   final Geolocator geoLocator;
+  final PermissionHandler permissionHandler;
 
-  LocationDataSourceImpl({@required this.geoLocator});
+  LocationDataSourceImpl({@required this.geoLocator,@required this.permissionHandler});
+
+  GeolocationStatus getGeoFromPermission(PermissionStatus status){
+    switch (status){
+      case PermissionStatus.granted:
+        return GeolocationStatus.granted;
+      case PermissionStatus.denied:
+        return GeolocationStatus.denied;
+      case PermissionStatus.restricted:
+        return GeolocationStatus.restricted;
+
+      default:
+        return GeolocationStatus.unknown;
+
+    }
+  }
 
   @override
   Future<DeviceLocation> getCurrentLocation() async{
-    GeolocationStatus geolocationStatus  = await Geolocator().checkGeolocationPermissionStatus();
-    debugPrint("geolocation status is ${geolocationStatus.value} ");
+    GeolocationStatus geolocationStatus  = await geoLocator.checkGeolocationPermissionStatus();
     if(geolocationStatus == null){
-      Map<PermissionGroup, PermissionStatus> permissions = await PermissionHandler().requestPermissions([PermissionGroup.location]);
+      Map<PermissionGroup, PermissionStatus> permissions = await permissionHandler.requestPermissions([PermissionGroup.location]);
+      geolocationStatus = getGeoFromPermission (permissions[PermissionGroup.location]);
     }
     if(geolocationStatus == GeolocationStatus.granted){
       final position = await geoLocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       return DeviceLocationModel.fromPosition(position);
     }
 
-    final testPosition = DeviceLocation(
-      longitude: 29.898887,
-      latitude: 31.199988,
-    );
-    //ToDo replace with user preferences / settings.
-    return testPosition;
+//    final testPosition = DeviceLocation(
+//      longitude: 29.898887,
+//      latitude: 31.199988,
+//    );
+    //ToDo replace with more informative exception.
+    //return testPosition;
+    throw LocationException();
   }
 
   @override
@@ -44,14 +62,11 @@ class LocationDataSourceImpl implements LocationDataSource{
 
     final currentDevicePosition = await getCurrentLocation();
     return getPlaceMarkFromPosition(location: currentDevicePosition);
-//    final placeMarks = await Geolocator().placemarkFromCoordinates(position.latitude, position.longitude);
-//    final devicePlaceMark = DevicePlaceMarkModel.fromPlaceMark(placeMarks[0]);
-//    return devicePlaceMark;
   }
 
   @override
   Future<DevicePlaceMark> getPlaceMarkFromPosition({DeviceLocation location}) async{
-    final placeMarks = await Geolocator().placemarkFromCoordinates(location.latitude, location.longitude);
+    final placeMarks = await geoLocator.placemarkFromCoordinates(location.latitude, location.longitude);
     final placeMark = DevicePlaceMarkModel.fromPlaceMark(placeMarks[0]);
     return placeMark;
   }
