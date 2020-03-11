@@ -29,7 +29,6 @@ class LocationDataSourceImpl implements LocationDataSource{
         return GeolocationStatus.denied;
       case PermissionStatus.restricted:
         return GeolocationStatus.restricted;
-
       default:
         return GeolocationStatus.unknown;
 

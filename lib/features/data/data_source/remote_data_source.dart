@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:pray/core/api_services/prayer_times_calender_service.dart';
+import 'package:pray/core/exeptions.dart';
 import 'package:pray/features/data/model/models.dart';
 import 'package:pray/features/domain/entity/entity.dart';
 
@@ -57,8 +58,14 @@ class RemoteDataSourceImpl extends RemoteDataSource {
       year: date.year,
     );
 
-    final rawJson = response.body;
-    return CalenderMonthModel.fromJson(rawJson);
+    if(response.isSuccessful){
+      final rawJson = response.body;
+      return CalenderMonthModel.fromJson(rawJson);
+    }else{
+      throw ServerException();
+    }
+
+
   }
 
   @override
@@ -87,7 +94,11 @@ class RemoteDataSourceImpl extends RemoteDataSource {
       timezonestring: (r'UTC'),
     );
 
-    final rawJson = response.body;
-    return CalenderMonthModel.fromJson(rawJson);
+    if(response.isSuccessful){
+      final rawJson = response.body;
+      return CalenderMonthModel.fromJson(rawJson);
+    }else{
+      throw ServerException();
+    }
   }
 }
