@@ -10,7 +10,7 @@ import 'package:pray/features/data/model/models.dart';
 import 'package:pray/features/domain/entity/entity.dart';
 
 abstract class RemoteDataSource {
-  Future<CalenderMonth> getCalenderMonth(
+  Future<CalenderMonth> getCalenderMonthByCity(
       {@required String city,
       @required String country,
       @required int method,
@@ -29,7 +29,7 @@ class RemoteDataSourceImpl extends RemoteDataSource {
   RemoteDataSourceImpl({@required this.client});
 
   @override
-  Future<CalenderMonth> getCalenderMonth(
+  Future<CalenderMonth> getCalenderMonthByCity(
       {@required String city,
       @required String country,
       @required int method,
@@ -47,7 +47,6 @@ class RemoteDataSourceImpl extends RemoteDataSource {
     );
 
     final calenderByCityService = CalenderByCityService.create(chopper);
-
     final response = await calenderByCityService.getCalender(
       city: city,
       // 31.1039, 29.7698
@@ -59,10 +58,6 @@ class RemoteDataSourceImpl extends RemoteDataSource {
     );
 
     final rawJson = response.body;
-//    print(rawJson);
-//    final calender = CalenderMonthModel.fromJson(json.decode(rawJson));
-//    return calender;
-//    CalenderMonthModel.fromJson(json.decode(rawJson));
     return CalenderMonthModel.fromJson(rawJson);
   }
 
@@ -93,10 +88,6 @@ class RemoteDataSourceImpl extends RemoteDataSource {
     );
 
     final rawJson = response.body;
-    print(rawJson);
-//    final calender = CalenderMonthModel.fromJson(json.decode(rawJson));
-//    return calender;
-//    CalenderMonthModel.fromJson(json.decode(rawJson));
     return CalenderMonthModel.fromJson(rawJson);
   }
 }

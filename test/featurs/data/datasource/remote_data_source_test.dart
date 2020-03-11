@@ -13,7 +13,7 @@ void main() {
   RemoteDataSource remote;
 
   setUp(() async{
-    final rawJson = await File('/Users/saednabil/AndroidStudioProjects/pray/test/fexures/calendermonth.json').readAsString();
+    final rawJson = await File('./test/fexures/calendermonth.json').readAsString();
     client = MockClient((req) async{
       return http.Response(rawJson,200);
     });
@@ -28,12 +28,11 @@ void main() {
 
 
 
-      final actual = await remote.getCalenderMonth(
+      final actual = await remote.getCalenderMonthByCity(
         city: 'Alexandria', country: 'Egypt', method: 0, date: DateTime(2020, 2, 16, 12,30));
 
-//http://api.aladhan.com/v1/calendarByCity?city=London&country=United%20Kingdom&method=2&month=04&year=2017
-//final url = 'http://api.aladhan.com/v1/calendarByCity?city=Alexandria&country=Egypt&method=0&month=2&year=2020';
- //       verify(client.get(url));
+// http://api.aladhan.com/v1/calendarByCity?city=London&country=United%20Kingdom&method=2&month=04&year=2017
+// final url = 'http://api.aladhan.com/v1/calendarByCity?city=Alexandria&country=Egypt&method=0&month=2&year=2020';
         expect(actual, calender);
     });
   });

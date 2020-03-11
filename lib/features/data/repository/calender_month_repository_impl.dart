@@ -63,7 +63,7 @@ class CalenderMonthRepositoryImpl extends CalenderMonthRepository {
       } else {
         print("city is $city country is $country");
         try {
-          final calender = await remote.getCalenderMonth(
+          final calender = await remote.getCalenderMonthByCity(
               city: city, country: country, method: method, date: date);
           data = Right(calender);
 

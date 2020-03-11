@@ -103,7 +103,7 @@ void main() {
           date: anyNamed('date')))
           .thenAnswer((_) => Future.value(calender));
       when(
-        remote.getCalenderMonth(
+        remote.getCalenderMonthByCity(
             city: anyNamed('city'),
             country: anyNamed('country'),
             method: anyNamed('method'),
@@ -116,7 +116,7 @@ void main() {
           method: 0,
           date: DateTime(2020, 2, 16, 12, 30));
 
-      verify(remote.getCalenderMonth(
+      verify(remote.getCalenderMonthByCity(
         city: 'Alexandria',
         country: 'Egypt',
         method: 0,
@@ -136,7 +136,7 @@ void main() {
               date: anyNamed('date')))
               .thenAnswer((_) => Future.value(calender));
 
-          when(remote.getCalenderMonth(
+          when(remote.getCalenderMonthByCity(
               city: anyNamed('city'),
               country: anyNamed('country'),
               method: anyNamed('method'),
