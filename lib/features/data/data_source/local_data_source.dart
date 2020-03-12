@@ -6,7 +6,7 @@ import 'package:pray/features/domain/entity/entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class LocalDataSource {
-  Future<CalenderMonth> getCalenderMonth(
+  Future<CalenderMonth> getCalenderMonthByCity(
       {@required String city,
       @required String country,
       @required int method,
@@ -26,33 +26,37 @@ class LocalDataSourceImpl extends LocalDataSource {
   final SharedPreferences preferences;
   final calenderCashKey = 'calenderKey';
   final calenderCashKeyJson = 'jsonString';
-  final emptyCalender = Future.value(CalenderMonth(code: 0, status: 'empty', data: []));
+  final emptyCalender =
+      Future.value(CalenderMonth(code: 0, status: 'empty', data: []));
 
   LocalDataSourceImpl({@required this.preferences});
 
-  String inMemoryCashedKey;  //in memory key
+  String inMemoryCashedKey; //in memory key
   String inMemoryCashedJson; //in memory json
 
-
   @override
-  Future<CalenderMonth> getCalenderMonth(
-      {@required String city,
-      @required String country,
-      @required int method,
-      @required DateTime date}) {
-
-
+  Future<CalenderMonth> getCalenderMonthByCity({
+    @required String city,
+    @required String country,
+    @required int method,
+    @required DateTime date,
+  }) {
     final String queryKey =
         '${country}_${city}_${method.toString()}_${date.month.toString()}_${date.year.toString()}';
-     if(inMemoryCashedKey == null){ inMemoryCashedKey = preferences.getString(calenderCashKey);}
+    if (inMemoryCashedKey == null) {
+      inMemoryCashedKey = preferences.getString(calenderCashKey);
+    }
 
-      if (inMemoryCashedKey == queryKey){
-        if(inMemoryCashedJson == null){inMemoryCashedJson = preferences.getString(calenderCashKeyJson);}
-        final calenderMonth = CalenderMonthModel.fromJson(json.decode(inMemoryCashedJson));
-        return Future.value(calenderMonth);
-      }else{
-        return emptyCalender;
+    if (inMemoryCashedKey == queryKey) {
+      if (inMemoryCashedJson == null) {
+        inMemoryCashedJson = preferences.getString(calenderCashKeyJson);
       }
+      final calenderMonth =
+          CalenderMonthModel.fromJson(json.decode(inMemoryCashedJson));
+      return Future.value(calenderMonth);
+    } else {
+      return emptyCalender;
+    }
   }
 
   @override
@@ -68,7 +72,6 @@ class LocalDataSourceImpl extends LocalDataSource {
   @override
   Future<CalenderMonth> getCalenderMonthByLocation(
       {double latitude, double longitude, int method, DateTime date}) async {
-    
     return emptyCalender;
   }
 }

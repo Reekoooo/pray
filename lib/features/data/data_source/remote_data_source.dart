@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:chopper/chopper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -24,6 +21,9 @@ abstract class RemoteDataSource {
       @required DateTime date});
 }
 
+//    final url = 'http://api.aladhan.com/v1/calendarByCity?city=$city&country=$country&method=${method.toString()}&month=${date.month.toString()}&year=${date.year.toString()}&timezonestring=UTC';
+//    final response = await client.get(url);
+
 class RemoteDataSourceImpl extends RemoteDataSource {
   final http.Client client;
 
@@ -35,8 +35,6 @@ class RemoteDataSourceImpl extends RemoteDataSource {
       @required String country,
       @required int method,
       @required DateTime date}) async {
-//    final url = 'http://api.aladhan.com/v1/calendarByCity?city=$city&country=$country&method=${method.toString()}&month=${date.month.toString()}&year=${date.year.toString()}&timezonestring=UTC';
-//    final response = await client.get(url);
     final chopper = ChopperClient(
       baseUrl: "http://api.aladhan.com",
       client: client,
@@ -58,14 +56,12 @@ class RemoteDataSourceImpl extends RemoteDataSource {
       year: date.year,
     );
 
-    if(response.isSuccessful){
+    if (response.isSuccessful) {
       final rawJson = response.body;
       return CalenderMonthModel.fromJson(rawJson);
-    }else{
+    } else {
       throw ServerException();
     }
-
-
   }
 
   @override
@@ -94,10 +90,10 @@ class RemoteDataSourceImpl extends RemoteDataSource {
       timezonestring: (r'UTC'),
     );
 
-    if(response.isSuccessful){
+    if (response.isSuccessful) {
       final rawJson = response.body;
       return CalenderMonthModel.fromJson(rawJson);
-    }else{
+    } else {
       throw ServerException();
     }
   }

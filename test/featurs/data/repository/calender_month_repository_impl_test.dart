@@ -52,7 +52,7 @@ void main() {
     test('never call remote data source if local data is available', () async {
       final testJson = await getJsonFromFile('calendermonth.json');
       final calender = CalenderMonthModel.fromJson(json.decode(testJson));
-      when(local.getCalenderMonth(
+      when(local.getCalenderMonthByCity(
           city: anyNamed('city'),
           country: anyNamed('country'),
           method: anyNamed('method'),
@@ -73,7 +73,7 @@ void main() {
     test('get cashFailure when local cash exception', () async {
       // final testJson = await getJsonFromFile('calendermonth.json');
       // final calender = CalenderMonthModel.fromJson(json.decode(testJson));
-      when(local.getCalenderMonth(
+      when(local.getCalenderMonthByCity(
           city: anyNamed('city'),
           country: anyNamed('country'),
           method: anyNamed('method'),
@@ -96,7 +96,7 @@ void main() {
       final testJson = await getJsonFromFile('calendermonth.json');
       final remoteCalender = CalenderMonthModel.fromJson(json.decode(testJson));
       final calender = CalenderMonthModel(code: 200, data: [], status: 'empty');
-      when(local.getCalenderMonth(
+      when(local.getCalenderMonthByCity(
           city: anyNamed('city'),
           country: anyNamed('country'),
           method: anyNamed('method'),
@@ -129,7 +129,7 @@ void main() {
           // final testJson = await getJsonFromFile('calendermonth.json');
           final calender = CalenderMonthModel(
               code: 200, data: [], status: 'empty');
-          when(local.getCalenderMonth(
+          when(local.getCalenderMonthByCity(
               city: anyNamed('city'),
               country: anyNamed('country'),
               method: anyNamed('method'),
@@ -163,7 +163,7 @@ void main() {
     test('should return single data', () async {
       final testJson = await getJsonFromFile('calendermonth.json');
       final calender = CalenderMonthModel.fromJson(json.decode(testJson));
-      when(local.getCalenderMonth(
+      when(local.getCalenderMonthByCity(
           city: anyNamed('city'),
           country: anyNamed('country'),
           method: anyNamed('method'),
@@ -182,7 +182,7 @@ void main() {
     test('should return Cash failure when local exception ', () async {
       // final testJson = await getJsonFromFile('calendermonth.json');
       // final calender = CalenderMonthModel.fromJson(json.decode(testJson));
-      when(local.getCalenderMonth(
+      when(local.getCalenderMonthByCity(
           city: anyNamed('city'),
           country: anyNamed('country'),
           method: anyNamed('method'),
@@ -223,7 +223,7 @@ void main() {
 
       //local data source empty response mock to force remote call
       final calender = CalenderMonthModel(code: 200, data: [], status: 'empty');
-      when(local.getCalenderMonth(
+      when(local.getCalenderMonthByCity(
           city: anyNamed('city'),
           country: anyNamed('country'),
           method: anyNamed('method'),
@@ -270,7 +270,7 @@ void main() {
 //        latitude: 1.0,
 //        longitude: 1.1,
 //      );
-      when(local.getCalenderMonth(
+      when(local.getCalenderMonthByCity(
           city: anyNamed('city'),
           country: anyNamed('country'),
           method: anyNamed('method'),

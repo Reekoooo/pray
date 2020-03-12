@@ -55,7 +55,7 @@ class CalenderMonthRepositoryImpl extends CalenderMonthRepository {
     Either<Failure, CalenderMonth> data;
 
     try {
-      final calender = await local.getCalenderMonth(
+      final calender = await local.getCalenderMonthByCity(
           city: city, country: country, method: method, date: date);
 
       if (calender.status != 'empty') {
@@ -108,7 +108,7 @@ class CalenderMonthRepositoryImpl extends CalenderMonthRepository {
     Either<Failure, CalenderMonth> data;
 
     try {
-      final calender = await local.getCalenderMonth(
+      final calender = await local.getCalenderMonthByCity(
           city: devicePlaceMark.city,
           country: devicePlaceMark.country,
           method: method,

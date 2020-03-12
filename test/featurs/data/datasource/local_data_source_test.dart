@@ -21,7 +21,7 @@ void main() {
   });
 
   group('get calender month', () {
-    test('get calender month should return calender month', () async {
+    test('get calender month should return calender month if parameters matches the key', () async {
       final savedKey = 'Egypt_Alexandria_0_2_2020';
       final calenderCashKey = 'calenderKey';
       final calenderCashKeyJson = 'jsonString';
@@ -30,7 +30,7 @@ void main() {
       final data = calender;
       when(preferences.getString(calenderCashKey)).thenReturn(savedKey);
       when(preferences.getString(calenderCashKeyJson)).thenReturn(testJson);
-      final actual = await local.getCalenderMonth(
+      final actual = await local.getCalenderMonthByCity(
           city: 'Alexandria',
           country: 'Egypt',
           method: 0,
@@ -38,16 +38,15 @@ void main() {
 
       expect(actual, data);
     });
-
     test('get calender month should returm empty calender when not saved',() async{
       final savedKey = 'Egypt_Alexandria_0_3_2020';
       final calenderCashKey = 'calenderKey';
-      final calenderCashKeyJson = 'jsonString';
+      //final calenderCashKeyJson = 'jsonString';
       final calender = CalenderMonth(code: 0, status: 'empty', data: []);
       final data = calender;
 
       when(preferences.getString(calenderCashKey)).thenReturn(savedKey);
-      final actual = await local.getCalenderMonth(
+      final actual = await local.getCalenderMonthByCity(
           city: 'Alexandria',
           country: 'Egypt',
           method: 0,
