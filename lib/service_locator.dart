@@ -15,26 +15,29 @@ import 'features/data/repository/calender_month_repository_impl.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async{
+
+  final prefs = await SharedPreferences.getInstance();
+
+  sl.registerSingleton<SharedPreferences>( prefs);
+  sl.registerSingleton<http.Client>( http.Client());
   //bloc
   sl.registerFactory(()=>DayTimings(repository: sl()));
-  sl.registerLazySingleton<CalenderMonthRepository>(()=>CalenderMonthRepositoryImpl(
+
+
+  sl.registerSingleton<LocalDataSource>(LocalDataSourceImpl(preferences: sl()));
+  sl.registerSingleton<RemoteDataSource>(RemoteDataSourceImpl(client: sl()));
+  sl.registerSingleton<Geolocator>( Geolocator());
+  sl.registerSingleton<PermissionHandler>(PermissionHandler());
+  sl.registerSingleton<LocationDataSource>(LocationDataSourceImpl(geoLocator: sl(),permissionHandler: sl()));
+  sl.registerSingleton<FlutterLocalNotificationsPlugin>(FlutterLocalNotificationsPlugin());
+  sl.registerSingleton<NotificationDataSource>(NotificationDataSourceImpl(notificationPlugin: sl()));
+
+  sl.registerSingleton<CalenderMonthRepository>(CalenderMonthRepositoryImpl(
     local: sl(),
     remote: sl(),
     location: sl(),
     notificationsDataSource: sl(),
+
   ));
-
-  sl.registerLazySingleton<LocalDataSource>(()=>LocalDataSourceImpl(preferences: sl()));
-  sl.registerLazySingleton<RemoteDataSource>(()=>RemoteDataSourceImpl(client: sl()));
-  sl.registerLazySingleton<Geolocator>(()=> Geolocator());
-  sl.registerLazySingleton<PermissionHandler>(()=>PermissionHandler());
-  sl.registerLazySingleton<LocationDataSource>(()=>LocationDataSourceImpl(geoLocator: sl(),permissionHandler: sl()));
-  sl.registerLazySingleton<FlutterLocalNotificationsPlugin>(()=>FlutterLocalNotificationsPlugin());
-  sl.registerLazySingleton<NotificationDataSource>(()=>NotificationDataSourceImpl(notificationPlugin: sl()));
-
-  final prefs = await SharedPreferences.getInstance();
-
-  sl.registerLazySingleton<SharedPreferences>(()=> prefs);
-  sl.registerLazySingleton<http.Client>(()=> http.Client());
 
 }

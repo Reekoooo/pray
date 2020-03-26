@@ -12,10 +12,12 @@ import 'package:pray/features/data/model/models.dart';
 import 'package:pray/features/domain/entity/azan_alarm.dart';
 import 'package:pray/features/domain/entity/entity.dart';
 import 'package:pray/features/domain/entity/location_entity.dart';
+import 'package:pray/features/domain/entity/settings.dart';
 import 'package:pray/features/domain/repository/calender_month_reepository.dart';
 
-class CalenderMonthRepositoryImpl extends CalenderMonthRepository {
+import 'package:isolate/isolate_runner.dart';
 
+class CalenderMonthRepositoryImpl extends CalenderMonthRepository {
   CalenderMonthRepositoryImpl({
     @required this.local,
     @required this.remote,
@@ -28,30 +30,12 @@ class CalenderMonthRepositoryImpl extends CalenderMonthRepository {
   final LocationDataSource location;
   final NotificationDataSource notificationsDataSource;
 
-
-
   @override
-  Future<Either<Failure, Data>> getDayCalender(
+  Future<Either<Failure, CalenderMonth>> getMonthCalenderByCity(
       {@required String city,
       @required String country,
       @required int method,
       @required DateTime date}) async {
-    final calender = await getMonthCalender(
-        city: city, country: country, method: method, date: date);
-    if (calender is Right) {
-      final data =
-          (((calender as Right).value) as CalenderMonth).data[date.day - 1];
-      return Right(data);
-    }
-    return Left((calender as Left).value);
-  }
-
-  @override
-  Future<Either<Failure, CalenderMonth>> getMonthCalender({
-    @required String city,
-    @required String country,
-    @required int method,
-    @required DateTime date}) async {
     Either<Failure, CalenderMonth> data;
 
     try {
@@ -61,18 +45,33 @@ class CalenderMonthRepositoryImpl extends CalenderMonthRepository {
       if (calender.status != 'empty') {
         data = Right(calender);
       } else {
-        print("city is $city country is $country");
+        //print("city is $city country is $country");
         try {
-          final calender = await remote.getCalenderMonthByCity(
-              city: city, country: country, method: method, date: date);
-          data = Right(calender);
+          final calenderByCity = await remote.getCalenderMonthByCity(
+            city: city,
+            country: country,
+            method: method,
+            date: date,
+          );
+
+          final longitude = calenderByCity.data[0].meta.longitude;
+          final latitude = calenderByCity.data[0].meta.latitude;
+
+          final calenderByLocation = await remote.getCalenderMonthByLocation(
+            latitude: latitude,
+            longitude: longitude,
+            method: method,
+            date: date,
+          );
 
           final key =
               '${country}_${city}_${method}_${date.month.toString()}_${date.year.toString()}';
           final jsonString =
-              json.encode((calender as CalenderMonthModel).toJson());
+              json.encode((calenderByLocation as CalenderMonthModel).toJson());
 
-          local.saveCalenderMonth(key: key, jsonString: jsonString);
+          await local.saveCalenderMonth(key: key, jsonString: jsonString);
+
+          data = Right(calenderByLocation);
         } on ServerException {
           data = Left(ServerFailure());
           return data;
@@ -92,105 +91,98 @@ class CalenderMonthRepositoryImpl extends CalenderMonthRepository {
       double longitude,
       @required int method,
       @required DateTime date}) async {
+    final deviceLocation =
+        DeviceLocation(longitude: longitude, latitude: latitude);
 
-    DeviceLocation currentDeviceLocation;
+    final devicePlaceMark =
+        await location.getPlaceMarkFromPosition(location: deviceLocation);
 
-    if(latitude==null || longitude == null){
-      currentDeviceLocation = await location.getCurrentLocation();
-    }
-    DeviceLocation deviceLocation = DeviceLocation(
-      latitude: latitude ?? currentDeviceLocation.latitude,
-      longitude: longitude ?? currentDeviceLocation.longitude,
-    );
-    final devicePlaceMark = await location.getPlaceMarkFromPosition(location: deviceLocation);
+    try{
 
-
-    Either<Failure, CalenderMonth> data;
-
-    try {
       final calender = await local.getCalenderMonthByCity(
-          city: devicePlaceMark.city,
-          country: devicePlaceMark.country,
-          method: method,
-          date: date);
+        city: devicePlaceMark.city,
+        country: devicePlaceMark.country,
+        method: method,
+        date: date,
+      );
 
-      if (calender.status != "empty") {
-        data = Right(calender);
-      } else {
+      if(calender.status =="empty"){
         try {
           final calender = await remote.getCalenderMonthByLocation(
-              longitude: longitude ?? deviceLocation.longitude,
-              latitude: latitude ?? deviceLocation.latitude,
-              method: method,
-              date: date);
-          data = Right(calender);
+              latitude: latitude, longitude: longitude, method: method, date: date);
 
+          final key =
+              '${devicePlaceMark.country}_${devicePlaceMark.city}_${method}_${date.month.toString()}_${date.year.toString()}';
+          final jsonString =
+          json.encode((calender as CalenderMonthModel).toJson());
 
-
-          final devicePlaceMark = await location.getPlaceMarkFromPosition(location: deviceLocation );
-          final country = devicePlaceMark.country;
-          final city = devicePlaceMark.city;
-
-
-          final key = '${country}_${city}_${method}_${date.month.toString()}_${date.year.toString()}';
-          final jsonString = json.encode((calender as CalenderMonthModel).toJson());
-
-          local.saveCalenderMonth(key: key,jsonString: jsonString);
-
+          await local.saveCalenderMonth(key: key, jsonString: jsonString);
+          return Right(calender);
         } on ServerException {
-          data = Left(ServerFailure());
-          return data;
+          return Left(ServerFailure());
         }
+      }else{
+        return Right(calender);
       }
-    } on CashException {
-      data = Left(CashFailure());
-      return data;
+
+    }on CashException{
+      return(Left(CashFailure()));
     }
 
-    return data;
   }
 
   @override
-  Future<Either<Failure, Data>> getDayCalenderByLocation(
-      {double longitude,
-      double latitude,
-      @required int method,
-      DateTime date}) async {
-    final calender =
-        await getMonthCalenderByLocation(method: method, date: date);
-    if (calender is Right) {
-      print('Date is $date');
-      print(
-          'calender is${(((calender as Right).value) as CalenderMonth).data}');
-      final data =
-          (((calender as Right).value) as CalenderMonth).data[date.day - 1];
-      return Right(data);
-    }
-    return Left((calender as Left).value);
-  }
-
-  @override
-  Future<Either<Failure, bool>> setAzanNotifications (
-      {List<AzanAlarm> notifications}) async{
-    try{
-      final notificationSuccess = await notificationsDataSource.setNotifications(notifications: notifications);
+  Future<Either<Failure, bool>> setAzanNotifications(
+      {List<AzanAlarm> notifications}) async {
+    try {
+      final notificationSuccess = await notificationsDataSource
+          .setNotifications(notifications: notifications);
       return Right(notificationSuccess);
-
-    }on NotificationsException{
+    } on NotificationsException {
       return Left(NotificationFailure());
     }
+  }
+
+  @override
+  Future<Either<Failure, DeviceLocation>> getDeviceLocation() async{
+    try{
+      final deviceLocation = await location.getCurrentLocation();
+      return Right(deviceLocation);
+    }on LocationException catch(e) {
+      return Left(LocationFailure(id: e.id));
+    }
+  }
+
+  @override
+  Future<Either<Failure, DevicePlaceMark>> getDevicePlaceMark() async{
+    try{
+      final devicePlaceMark = await location.getCurrentPlaceMark();
+      return Right(devicePlaceMark);
+    } on LocationException catch(e){
+      return Left(LocationFailure(id: e.id));
+    }
 
   }
 
   @override
-  Future<Either<Failure, CalenderMonth>> getMonthCalenderForCurrentLocation({int method, DateTime date}) async{
-    var devicePlaceMark;
+  Future<Either<Failure, Settings>> loadSettings() async{
     try{
-      devicePlaceMark = await location.getCurrentPlaceMark();
-      final calender = await getMonthCalender(city: devicePlaceMark.city, country: devicePlaceMark.country, method: method, date: date??DateTime.now());
-      return calender;
-    }on LocationException{
-      return Left(LocationFailure());
+      final settings = await local.loadSettings();
+      return Right(settings);
+    }on CashException {
+      return Left(CashFailure());
     }
+  }
+
+  @override
+  Future<Either<Failure, void>> saveSettings({Settings settings}) async{
+
+    try{
+      final answer = await local.saveSettings(settingsModel: settings);
+      return Right(answer);
+    }on CashException{
+      return Left(CashFailure());
+    }
+    return null;
   }
 }

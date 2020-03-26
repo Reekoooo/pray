@@ -21,7 +21,7 @@ class LocationDataSourceImpl implements LocationDataSource{
 
   LocationDataSourceImpl({@required this.geoLocator,@required this.permissionHandler});
 
-  GeolocationStatus getGeoFromPermission(PermissionStatus status){
+  GeolocationStatus _getGeoFromPermission(PermissionStatus status){
     switch (status){
       case PermissionStatus.granted:
         return GeolocationStatus.granted;
@@ -40,27 +40,21 @@ class LocationDataSourceImpl implements LocationDataSource{
     GeolocationStatus geolocationStatus  = await geoLocator.checkGeolocationPermissionStatus();
     if(geolocationStatus == null){
       Map<PermissionGroup, PermissionStatus> permissions = await permissionHandler.requestPermissions([PermissionGroup.location]);
-      geolocationStatus = getGeoFromPermission (permissions[PermissionGroup.location]);
+      geolocationStatus = _getGeoFromPermission (permissions[PermissionGroup.location]);
     }
     if(geolocationStatus == GeolocationStatus.granted){
       final position = await geoLocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       return DeviceLocationModel.fromPosition(position);
     }
 
-//    final testPosition = DeviceLocation(
-//      longitude: 29.898887,
-//      latitude: 31.199988,
-//    );
-    //ToDo replace with more informative exception.
-    //return testPosition;
-    throw LocationException();
+    throw LocationException(id: geolocationStatus.value);
   }
 
   @override
   Future<DevicePlaceMark> getCurrentPlaceMark() async{
 
     final currentDevicePosition = await getCurrentLocation();
-    return getPlaceMarkFromPosition(location: currentDevicePosition);
+    return await getPlaceMarkFromPosition(location: currentDevicePosition);
   }
 
   @override

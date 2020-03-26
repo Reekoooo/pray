@@ -15,10 +15,11 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<DayTimings>.value(
-      value: sl<DayTimings>(),
+      value:  sl<DayTimings>(),
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
@@ -35,7 +36,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     final model = Provider.of<DayTimings>(context);
     return Scaffold(
-      appBar: AppBar(),
+
       body: Stack(
         fit: StackFit.expand,
         alignment: Alignment.center,

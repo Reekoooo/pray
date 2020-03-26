@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:pray/core/exeptions.dart';
 import 'package:pray/features/data/data_source/local_data_source.dart';
 import 'package:pray/features/data/model/models.dart';
+import 'package:pray/features/data/model/settings_model.dart';
 import 'package:pray/features/domain/entity/entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -69,6 +71,42 @@ void main() {
       expect(actual, true);
       verify(preferences.setString(calenderCashKey, 'key'));
       verify(preferences.setString(calenderCashKeyJson, 'string'));
+    });
+  });
+
+  group('settings', (){
+
+    test('local data source should return settings',() async{
+      final settings = SettingsModel(city: 'Alexandria',country: 'Egypt');
+      final jsonString = json.encode( settings.toJson());
+      when(preferences.getString('settings')).thenReturn(jsonString);
+
+      final actual = await local.loadSettings();
+
+      expect(actual,settings);
+    });
+
+    test('throw cash exception when no settings saved', () async{
+      when(preferences.getString('settings')).thenThrow(Exception());
+      final actual = ()=> local.loadSettings();
+      expect(actual, throwsA(CashException()));
+
+    });
+
+    test('local data source save settings', () async{
+      final settings = SettingsModel(city: 'Alexandria',country: 'Egypt');
+      when(preferences.setString(any,any)).thenAnswer((_)=>Future.value(true));
+      await local.saveSettings(settingsModel: settings);
+      final jsonString = json.encode(settings.toJson());
+
+      verify(preferences.setString('settings', jsonString));
+    });
+
+    test('throw cash exception when save error', () async{
+      final settings = SettingsModel(city: 'Alexandria',country: 'Egypt');
+      when(preferences.setString(any,any)).thenThrow(Exception());
+      final actual = () => local.saveSettings(settingsModel: settings);
+      expect(actual,throwsA(CashException()));
     });
   });
 }

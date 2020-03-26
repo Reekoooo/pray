@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:mockito/mockito.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pray/core/exeptions.dart';
+import 'package:pray/core/failures.dart';
 import 'package:pray/features/data/data_source/location_data_source.dart';
 import 'package:pray/features/data/model/location_model.dart';
 
@@ -80,7 +81,7 @@ void main() {
 
       final actual = () => locationDataSource.getCurrentLocation();
 
-      expect(actual, throwsA(LocationException()));
+      expect(actual, throwsA(LocationException(id: LocationFailure.denied)));
     });
   });
 
